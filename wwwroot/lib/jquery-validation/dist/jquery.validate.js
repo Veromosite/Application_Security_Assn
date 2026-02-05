@@ -683,8 +683,24 @@ $.extend( $.validator, {
 			} );
 		},
 
+		// Wrap a potential element input without interpreting strings as selectors or HTML.
+		_safeElementWrapper: function( candidate ) {
+			// If it's already a jQuery object, use it as-is.
+			if ( candidate && candidate.jquery ) {
+				return candidate;
+			}
+
+			// DOM elements (including document) and window objects are safe to wrap.
+			if ( candidate && ( candidate.nodeType || candidate === window ) ) {
+				return $( candidate );
+			}
+
+			// For any other type (including strings), do not treat as selector/HTML.
+			return $( [] );
+		},
+
 		clean: function( selector ) {
-			return $( selector )[ 0 ];
+			return this._safeElementWrapper( selector )[ 0 ];
 		},
 
 		errors: function() {
@@ -1068,8 +1084,9 @@ $.extend( $.validator, {
 				element = this.findByName( element.name );
 			}
 
-			// Always apply ignore filter
-			return $( element ).not( this.settings.ignore )[ 0 ];
+			// Always apply ignore filter; avoid interpreting strings as selectors/HTML.
+			var wrapped = this._safeElementWrapper( element );
+			return wrapped.not( this.settings.ignore )[ 0 ];
 		},
 
 		checkable: function( element ) {
