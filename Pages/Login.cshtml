@@ -1,0 +1,93 @@
+@page
+@model WebApplication1.Pages.LoginModel
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Login - Ace Job Agency";
+    var siteKey = Configuration["RecaptchaSettings:SiteKey"];
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h1 class="card-title text-center mb-4">Login</h1>
+
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success">@Model.SuccessMessage</div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">@Model.ErrorMessage</div>
+                    }
+
+                    <form method="post" id="loginForm">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="LModel.Email"></label>
+                            <input type="email" asp-for="LModel.Email" class="form-control" />
+                            <span asp-validation-for="LModel.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="LModel.Password"></label>
+                            <input type="password" asp-for="LModel.Password" class="form-control" />
+                            <span asp-validation-for="LModel.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" asp-for="LModel.RememberMe" class="form-check-input" />
+                            <label class="form-check-label" asp-for="LModel.RememberMe"></label>
+                        </div>
+
+                        <input type="hidden" asp-for="LModel.RecaptchaToken" id="recaptchaToken" />
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+
+                        <div class="text-center mt-2 mb-3">
+                            <small class="text-muted">
+                                This site is protected by reCAPTCHA and the Google
+                                <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+                                <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+                            </small>
+                        </div>
+
+                        <div class="text-center">
+                            <p><a asp-page="ForgotPassword">Forgot Password?</a></p>
+                            <p>Don't have an account? <a asp-page="Register">Register here</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://www.google.com/recaptcha/api.js?render=@siteKey"></script>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop the form from submitting immediately
+
+            grecaptcha.ready(function() {
+                // Execute 'login' action
+                grecaptcha.execute('@siteKey', {action: 'login'}).then(function(token) {
+                    // 1. Set the token
+                    document.getElementById('recaptchaToken').value = token;
+
+                    // 2. Submit the form
+                    HTMLFormElement.prototype.submit.call(document.getElementById('loginForm'));
+                });
+            });
+        });
+    </script>
+}

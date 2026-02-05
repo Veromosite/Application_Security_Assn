@@ -1,0 +1,172 @@
+﻿@page
+@model WebApplication1.Pages.RegisterModel
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Register - Ace Job Agency";
+    // Ensure this key in appsettings.json is your V3 Site Key
+    var siteKey = Configuration["RecaptchaSettings:SiteKey"];
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h1 class="card-title text-center mb-4">Register for Ace Job Agency</h1>
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">@Model.ErrorMessage</div>
+                    }
+
+                    <form method="post" enctype="multipart/form-data" id="registerForm">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="RModel.FirstName"></label>
+                                <input type="text" asp-for="RModel.FirstName" class="form-control" />
+                                <span asp-validation-for="RModel.FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="RModel.LastName"></label>
+                                <input type="text" asp-for="RModel.LastName" class="form-control" />
+                                <span asp-validation-for="RModel.LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.Gender"></label>
+                            <select asp-for="RModel.Gender" class="form-select">
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="RModel.Gender" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.NRIC"></label>
+                            <input type="text" asp-for="RModel.NRIC" class="form-control" placeholder="e.g., S1234567A" maxlength="9" />
+                            <span asp-validation-for="RModel.NRIC" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.DateOfBirth"></label>
+                            <input type="date" asp-for="RModel.DateOfBirth" class="form-control"
+                                   value="@DateTime.Today.AddYears(-18).ToString("yyyy-MM-dd")"
+                                   max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="RModel.DateOfBirth" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.Email"></label>
+                            <input type="email" asp-for="RModel.Email" class="form-control" />
+                            <span asp-validation-for="RModel.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.Password"></label>
+                            <input type="password" asp-for="RModel.Password" class="form-control" id="password" />
+                            <span asp-validation-for="RModel.Password" class="text-danger"></span>
+                            <div id="passwordStrength" class="mt-2"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.ConfirmPassword"></label>
+                            <input type="password" asp-for="RModel.ConfirmPassword" class="form-control" />
+                            <span asp-validation-for="RModel.ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.Resume"></label>
+                            <input type="file" asp-for="RModel.Resume" class="form-control" accept=".pdf,.docx" />
+                            <span asp-validation-for="RModel.Resume" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="RModel.WhoAmI"></label>
+                            <textarea asp-for="RModel.WhoAmI" class="form-control" rows="4" maxlength="2000"></textarea>
+                            <span asp-validation-for="RModel.WhoAmI" class="text-danger"></span>
+                        </div>
+
+                        <input type="hidden" asp-for="RModel.RecaptchaToken" id="recaptchaToken" />
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                        </div>
+
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                This site is protected by reCAPTCHA and the Google
+                                <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+                                <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+                            </small>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <p>Already have an account? <a asp-page="Login">Login here</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://www.google.com/recaptcha/api.js?render=@siteKey"></script>
+
+    <script>
+        // --- 1. reCAPTCHA v3 Execution Logic ---
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop form from submitting immediately
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute('@siteKey', {action: 'register'}).then(function(token) {
+                    // 1. Put the token in the hidden input
+                    document.getElementById('recaptchaToken').value = token;
+
+                    // 2. Submit the form programmatically
+                    // We use HTMLFormElement.prototype.submit.call to bypass this listener
+                    // so we don't get into an infinite loop
+                    HTMLFormElement.prototype.submit.call(document.getElementById('registerForm'));
+                });
+            });
+        });
+
+        // --- 2. Password Strength Logic (Kept from your previous code) ---
+        document.getElementById('password').addEventListener('input', function () {
+            const password = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            let strength = 0;
+            let feedback = [];
+
+            if (password.length >= 12) strength++; else feedback.push('12+ chars');
+            if (/[a-z]/.test(password)) strength++; else feedback.push('Lowercase');
+            if (/[A-Z]/.test(password)) strength++; else feedback.push('Uppercase');
+            if (/[0-9]/.test(password)) strength++; else feedback.push('Number');
+            if (/[@@$!%*?&]/.test(password)) strength++; else feedback.push('Special char');
+
+            let strengthText = '';
+            let strengthClass = '';
+
+            if (strength === 0) { strengthText = ''; }
+            else if (strength <= 2) { strengthText = 'Weak'; strengthClass = 'text-danger'; }
+            else if (strength <= 4) { strengthText = 'Medium'; strengthClass = 'text-warning'; }
+            else { strengthText = 'Strong'; strengthClass = 'text-success'; }
+
+            if (feedback.length > 0 && password.length > 0) {
+                strengthDiv.innerHTML = '<small class="' + strengthClass + '">Strength: ' + strengthText + '</small>';
+            } else if (password.length > 0) {
+                strengthDiv.innerHTML = '<small class="' + strengthClass + '">Strength: ' + strengthText + '</small>';
+            } else {
+                strengthDiv.innerHTML = '';
+            }
+        });
+    </script>
+}

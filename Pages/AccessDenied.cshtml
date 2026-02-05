@@ -1,0 +1,20 @@
+@page
+@model WebApplication1.Pages.AccessDeniedModel
+@{
+ ViewData["Title"] = "Access Denied";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+    <h1 class="display-1 text-danger">403</h1>
+   <h2 class="mb-4">Access Denied</h2>
+      <p class="lead">You don't have permission to access this resource.</p>
+    <p>Please log in with an authorized account or contact support if you believe this is an error.</p>
+      <div class="mt-4">
+       <a asp-page="/Login" class="btn btn-primary me-2">Login</a>
+     <a asp-page="/Index" class="btn btn-outline-secondary">Go to Home</a>
+ </div>
+        </div>
+    </div>
+</div>

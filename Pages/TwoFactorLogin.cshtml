@@ -1,0 +1,62 @@
+@page
+@model WebApplication1.Pages.TwoFactorLoginModel
+@{
+    ViewData["Title"] = "Two-Factor Authentication";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+  <div class="card shadow">
+       <div class="card-body">
+ <h1 class="card-title text-center mb-4">Two-Factor Authentication</h1>
+    
+     <div class="alert alert-info">
+      <i class="bi bi-info-circle"></i>
+       A 6-digit verification code has been sent to your email. Please enter it below.
+           </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+      {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+     <form method="post">
+      <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+      <div class="mb-3">
+     <label class="form-label" asp-for="TFModel.Code"></label>
+          <input type="text" asp-for="TFModel.Code" class="form-control text-center" 
+        maxlength="6" pattern="[0-9]{6}" inputmode="numeric" 
+       placeholder="000000" autofocus />
+      <span asp-validation-for="TFModel.Code" class="text-danger"></span>
+<small class="form-text text-muted">Enter the 6-digit code from your email</small>
+   </div>
+
+        <div class="d-grid mb-3">
+    <button type="submit" class="btn btn-primary">Verify</button>
+       </div>
+
+ <div class="text-center">
+         <p class="text-muted">Code expires in 10 minutes</p>
+      <p><a asp-page="Login">Back to Login</a></p>
+    </div>
+         </form>
+   </div>
+  </div>
+ </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Auto-submit when 6 digits entered
+ document.querySelector('input[name="TFModel.Code"]').addEventListener('input', function(e) {
+      if (this.value.length === 6) {
+       // Auto-submit form
+    // this.form.submit();
+  }
+     });
+    </script>
+}

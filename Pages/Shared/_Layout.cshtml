@@ -1,0 +1,167 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using WebApplication1.Model
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IConfiguration Configuration
+
+@{
+    // Set reCAPTCHA site key early so it's available to all pages
+    ViewData["RecaptchaSiteKey"] = Configuration["RecaptchaSettings:SiteKey"];
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ace Job Agency</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebApplication1.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+       --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+    --secondary-color: #764ba2;
+        }
+      
+        body {
+      font-family: 'Inter', sans-serif;
+       background: #f8f9fa;
+        }
+      
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+        }
+        
+   .navbar-brand {
+     font-weight: 700;
+  font-size: 1.5rem;
+        background: var(--primary-gradient);
+            -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+      background-clip: text;
+      }
+        
+        .nav-link {
+    font-weight: 500;
+            transition: color 0.3s ease;
+        }
+     
+        .nav-link:hover {
+        color: var(--primary-color) !important;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+          border: none;
+       font-weight: 600;
+        padding: 0.5rem 1.5rem;
+   transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+          transform: translateY(-2px);
+       box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+      .btn-outline-primary {
+     border-color: var(--primary-color);
+  color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .btn-outline-primary:hover {
+       background: var(--primary-gradient);
+        border-color: transparent;
+        }
+   
+        .card {
+      border-radius: 15px;
+      transition: transform 0.3s ease;
+        }
+    </style>
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+ <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+       <div class="container">
+<a class="navbar-brand" asp-page="/Index">
+     <i class="bi bi-briefcase-fill"></i> Ace Job Agency
+                </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+  aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+           </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+  <li class="nav-item">
+    <a class="nav-link" asp-page="/Index">
+          <i class="bi bi-house"></i> Home
+            </a>
+       </li>
+   @if (SignInManager.IsSignedIn(User))
+            {
+    <li class="nav-item">
+      <a class="nav-link" asp-page="/ChangePassword">
+   <i class="bi bi-key"></i> Change Password
+ </a>
+       </li>
+     }
+      </ul>
+<ul class="navbar-nav ms-auto">
+     @if (SignInManager.IsSignedIn(User))
+   {
+  var user = await UserManager.GetUserAsync(User);
+           <li class="nav-item dropdown">
+     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+  data-bs-toggle="dropdown" aria-expanded="false">
+                 <i class="bi bi-person-circle fs-5"></i> 
+  <span class="fw-semibold">@user?.FirstName @user?.LastName</span>
+     </a>
+     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" asp-page="/Index"><i class="bi bi-person"></i> Profile</a></li>
+         <li><a class="dropdown-item" asp-page="/ChangePassword"><i class="bi bi-key"></i> Change Password</a></li>
+             <li><hr class="dropdown-divider"></li>
+     <li><a class="dropdown-item text-danger" asp-page="/Logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+    </ul>
+    </li>
+ }
+            else
+ {
+    <li class="nav-item">
+       <a class="nav-link" asp-page="/Login">
+        <i class="bi bi-box-arrow-in-right"></i> Login
+    </a>
+      </li>
+      <li class="nav-item">
+       <a class="btn btn-primary ms-2" asp-page="/Register">
+      <i class="bi bi-person-plus"></i> Register
+   </a>
+        </li>
+       }
+            </ul>
+     </div>
+          </div>
+        </nav>
+  </header>
+    
+    <main class="container my-4">
+        @RenderBody()
+ </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

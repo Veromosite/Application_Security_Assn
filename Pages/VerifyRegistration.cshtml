@@ -1,0 +1,106 @@
+@page
+@model WebApplication1.Pages.VerifyRegistrationModel
+@{
+    ViewData["Title"] = "Verify Registration - Ace Job Agency";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+   <div class="card shadow">
+       <div class="card-body">
+         <h1 class="card-title text-center mb-4">
+         <i class="bi bi-shield-check"></i> Verify Your Registration
+           </h1>
+
+            <div class="alert alert-info">
+    <i class="bi bi-envelope"></i>
+               We've sent a 6-digit verification code to <strong>@Model.Email</strong>
+        <br><small>The code will expire in 10 minutes.</small>
+      </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+ {
+                <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+   @if (TempData["SuccessMessage"] != null)
+    {
+     <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
+  <form method="post">
+  <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+ <div class="mb-3">
+            <label class="form-label" asp-for="VModel.Code">
+    <i class="bi bi-key"></i> Verification Code
+              </label>
+         <input type="text" 
+        asp-for="VModel.Code" 
+        class="form-control form-control-lg text-center" 
+       placeholder="Enter 6-digit code"
+          maxlength="6"
+         pattern="[0-9]{6}"
+            autocomplete="off"
+     autofocus />
+         <span asp-validation-for="VModel.Code" class="text-danger"></span>
+     </div>
+
+      <div class="d-grid mb-3">
+       <button type="submit" class="btn btn-primary btn-lg">
+        <i class="bi bi-check-circle"></i> Verify & Complete Registration
+ </button>
+   </div>
+
+<div class="text-center">
+        <form method="post" asp-page-handler="ResendCode" class="d-inline">
+         <button type="submit" class="btn btn-link">
+            <i class="bi bi-arrow-clockwise"></i> Resend Code
+      </button>
+       </form>
+           </div>
+
+       <hr>
+
+          <div class="text-center">
+                <p class="text-muted">
+             <small>
+  Didn't receive the code? Check your spam folder or click resend.
+       </small>
+        </p>
+      <a asp-page="Register" class="text-decoration-none">
+ <i class="bi bi-arrow-left"></i> Back to Registration
+  </a>
+    </div>
+           </form>
+    </div>
+      </div>
+ </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Auto-focus and format code input
+        document.addEventListener('DOMContentLoaded', function() {
+       var codeInput = document.querySelector('input[name="VModel.Code"]');
+         if (codeInput) {
+             // Only allow numbers
+codeInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+   });
+
+  // Auto-submit when 6 digits entered (optional)
+   codeInput.addEventListener('input', function(e) {
+           if (this.value.length === 6) {
+         // You can auto-submit here if desired
+        // this.form.submit();
+       }
+     });
+            }
+        });
+    </script>
+}
