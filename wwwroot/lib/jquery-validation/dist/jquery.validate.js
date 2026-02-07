@@ -684,7 +684,21 @@ $.extend( $.validator, {
 		},
 
 		clean: function( selector ) {
-			return $( selector )[ 0 ];
+
+			// If a jQuery object is passed, return the first element; this preserves
+			// existing behavior without interpreting arbitrary strings as HTML.
+			if ( selector && selector.jquery ) {
+				return selector[ 0 ];
+			}
+
+			// If a DOM element or window is passed, return it directly.
+			if ( selector && ( selector.nodeType || selector === selector.window ) ) {
+				return selector;
+			}
+
+			// For all other types (including strings), avoid passing them to `$()` to
+			// prevent jQuery from treating them as HTML. Indicate "no element".
+			return undefined;
 		},
 
 		errors: function() {
